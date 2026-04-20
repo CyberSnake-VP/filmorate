@@ -1,0 +1,12 @@
+<component name="ProjectCodeStyleConfiguration">
+  <code_scheme name="Project" version="173">
+    <option name="AUTODETECT_INDENTS" value="false" />
+    <H2CodeStyleSettings version="7">
+      <option name="USE_GENERAL_STYLE" value="false" />
+      <option name="DISABLE_FORMATTING" value="true" />
+    </H2CodeStyleSettings>
+    <SqlCodeStyleSettings version="7">
+      <option name="DISABLE_FORMATTING" value="true" />
+    </SqlCodeStyleSettings>
+  </code_scheme>
+</component>

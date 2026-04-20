@@ -1,0 +1,13 @@
+spring:
+  sql:
+    init:
+      mode: always
+  datasource:
+    driver-class-name: org.h2.Driver
+    username: "sa"
+    password: "password"
+    url: "jdbc:h2:file:./db/filmorate"
+
+logging:
+  level:
+    ru: debug
