@@ -1,7 +1,14 @@
 package example.dal;
 
-import org.springframework.stereotype.Repository;
+import example.model.User;
 
-@Repository
-public class UserRepository {
+import java.util.List;
+import java.util.Optional;
+
+public interface UserRepository {
+    User create(User user);
+    List<User> findAll();
+    Optional<User> findOne(Long id);
+    User update(User user);
+    boolean delete(Long id);
 }
