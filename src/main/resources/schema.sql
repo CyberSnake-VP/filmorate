@@ -7,3 +7,13 @@ CREATE TABLE IF NOT EXISTS USERS
     birthday DATE CHECK (birthday <= CURRENT_DATE)
 );
 
+CREATE TABLE IF NOT EXISTS FRIENDS
+(
+    user_id BIGINT NOT NULL ,
+    friend_id BIGINT NOT NULL,
+    PRIMARY KEY (user_id, friend_id),
+    CONSTRAINT fk_friends_user FOREIGN KEY(user_id) REFERENCES USERS(id) ON DELETE CASCADE ,
+    CONSTRAINT fk_friends_friend FOREIGN KEY(friend_id) REFERENCES USERS(id) ON DELETE CASCADE,
+    CONSTRAINT chk_friends_not_self CHECK (user_id <> friend_id)
+)
+
