@@ -1,6 +1,7 @@
 package example.controller;
 
 import example.dto.request.CreateUserRequest;
+import example.dto.request.UpdateUserRequest;
 import example.dto.response.UserResponse;
 import example.service.UserService;
 import jakarta.validation.Valid;
@@ -22,9 +23,9 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponse create(@Valid @RequestBody CreateUserRequest request) {
-        log.info("HTTP POST /users started. login={}, email={}", request.getLogin(), request.getEmail());
+        log.info("HTTP POST /users started. login={}, email={}", request.login(), request.email());
         UserResponse response = userService.create(request);
-        log.info("HTTP POST /users completed. userId={}", response.getId());
+        log.info("HTTP POST /users completed. userId={}", response.id());
         return response;
     }
 
@@ -42,7 +43,7 @@ public class UserController {
     public UserResponse get(@PathVariable Long id) {
         log.info("HTTP GET /users/{} started", id);
         UserResponse response = userService.get(id);
-        log.info("HTTP GET /users/{} completed. login={}", id, response.getLogin());
+        log.info("HTTP GET /users/{} completed. login={}", id, response.login());
         return response;
     }
 
@@ -53,5 +54,14 @@ public class UserController {
         userService.delete(id);
     }
 
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UserResponse update(@PathVariable Long id,
+                               @Valid @RequestBody UpdateUserRequest request) {
+        log.info("HTTP PUT /users/{} started. ", id);
+        UserResponse response = userService.update(request, id);
+        log.info("HTTP PUT /users/{} completed. ", id);
+        return response;
+    }
 
 }
