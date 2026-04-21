@@ -11,4 +11,7 @@ public interface UserRepository {
     Optional<User> findOne(Long id);
     User update(User user);
     boolean delete(Long id);
+    boolean isExistById(Long id);
+    boolean isLoginExist(String login);
+    boolean isEmailExist(String email);
 }
