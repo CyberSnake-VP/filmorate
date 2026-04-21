@@ -14,4 +14,5 @@ public interface UserRepository {
     boolean isExistById(Long id);
     boolean isLoginExist(String login);
     boolean isEmailExist(String email);
+    List<User> getCommonFriends(Long userId, Long friendId);
 }

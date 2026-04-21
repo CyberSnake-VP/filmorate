@@ -1,5 +1,6 @@
 package example.service;
 
+import example.dal.FriendRepository;
 import example.dal.UserRepository;
 import example.dto.request.CreateUserRequest;
 import example.dto.request.UpdateUserRequest;
@@ -13,16 +14,21 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
+    private final FriendRepository friendRepository;
 
     private static final String LOGIN_IS_EXISTING = "Логин уже занят";
     private static final String EMAIL_IS_EXISTING = "Email уже используется";
     private static final String NOT_FOUND_MESSAGE = "Пользователь не найден";
+    private static final String ADD_THEMSELVES_MESSAGE = "Нельзя добавить пользователя в друзья самому себе";
+    private static final String FRIEND_IS_ALREADY_MESSAGE ="Пользователи уже являются друзьями";
+
 
     @Override
     public UserResponse create(CreateUserRequest request) {
@@ -38,8 +44,13 @@ public class UserServiceImpl implements UserService{
             log.warn("Create user rejected: login already exists. login={}", request.login());
             throw new ConditionNotMetException(LOGIN_IS_EXISTING);
         }
+
         log.info("Create user started. login={}, email={}", request.login(), request.email());
-        User createdUser = userRepository.create(UserMapper.toUser(request));
+        User createUser = UserMapper.toUser(request);
+        if(request.name() == null || request.name().isBlank()) {
+            createUser.setName(request.login());
+        }
+        User createdUser = userRepository.create(createUser);
         log.info("Create user completed. userId={}, login={}", createdUser.getId(), createdUser.getLogin());
 
         return UserMapper.toUserResponse(createdUser);
@@ -114,5 +125,51 @@ public class UserServiceImpl implements UserService{
         }
         log.info("Delete user completed. userId={}", id);
     }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+         log.info("Add friend started: userId={}, friendId={}", userId, friendId);
+         log.debug("Add friend: checking self-friend request. userId={}, friendId={}", userId, friendId);
+         if(userId.equals(friendId)) {
+            log.warn("Add friend failed: user cannot add themselves. userId={}, friendId={}", userId, friendId);
+            throw new ConditionNotMetException(ADD_THEMSELVES_MESSAGE);
+         }
+
+         boolean isExistUser = userRepository.isExistById(userId);
+         boolean isExistFriend = userRepository.isExistById(friendId);
+
+        log.debug("Add friend: checking users existence. userId={}, friendId={}", userId, friendId);
+        if(!isExistUser || !isExistFriend) {
+             log.warn("Add friend failed: user or friend not found. userId={}, friendId={}", userId, friendId);
+             throw new NotFoundException(NOT_FOUND_MESSAGE);
+         }
+
+         boolean isAlreadyFriends = friendRepository.existFriend(userId, friendId);
+         log.debug("Add friend: checking friendship already exists. userId={}, friendId={}", userId, friendId);
+         if(isAlreadyFriends) {
+             log.warn("Add friend failed: already friends. userId={}, friendId={}", userId, friendId);
+             throw new ConditionNotMetException(FRIEND_IS_ALREADY_MESSAGE);
+         }
+
+         friendRepository.addFriend(userId, friendId);
+         log.info("Add friend completed: userId={}, friendId={}", userId, friendId);
+    }
+
+    @Override
+    public void removeFriend(Long userId, Long friendId) {
+
+    }
+
+    @Override
+    public List<UserResponse> getFriends(Long userId) {
+
+        return List.of();
+    }
+
+    @Override
+    public List<UserResponse> getCommonFriends(Long userId, Long friendId) {
+        return List.of();
+    }
+
 
 }

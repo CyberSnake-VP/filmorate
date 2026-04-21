@@ -14,4 +14,9 @@ public interface UserService {
     List<UserResponse> getAll();
     UserResponse update(UpdateUserRequest request, Long id);
     void delete(Long id);
+
+    void addFriend(Long userId, Long friendId);
+    void removeFriend(Long userId, Long friendId);
+    List<UserResponse> getFriends(Long userId);
+    List<UserResponse> getCommonFriends(Long userId, Long friendId);
 }

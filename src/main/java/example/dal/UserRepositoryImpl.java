@@ -24,8 +24,10 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     private static final String EXIST_BY_ID_QUERY = "SELECT 1 FROM users WHERE id = ? LIMIT 1";
     private static final String EXIST_EMAIL_QUERY = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
     private static final String EXIST_LOGIN_QUERY = "SELECT 1 FROM users WHERE login = ? LIMIT 1";
-
-
+    private static final String FIND_COMMON_FRIENDS = "SELECT * FROM users WHERE id IN (" +
+            "SELECT friend_id FROM friends WHERE user_id = ? " +
+            "INTERSECT " +
+            "SELECT friend_id FROM friends WHERE user_id = ? )";
 
     @Override
     public User create(User user) {
@@ -81,6 +83,11 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     @Override
     public boolean isEmailExist(String email) {
         return exist(EXIST_EMAIL_QUERY, email);
+    }
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        return findAll(FIND_COMMON_FRIENDS, userId, friendId);
     }
 
 }

@@ -41,16 +41,16 @@ public class UserController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public UserResponse get(@PathVariable Long id) {
-        log.info("HTTP GET /users/{} started", id);
+        log.info("HTTP GET /users/{id} started. id={}", id);
         UserResponse response = userService.get(id);
-        log.info("HTTP GET /users/{} completed. login={}", id, response.login());
+        log.info("HTTP GET /users/{id} completed.  id={}, login={}", id, response.login());
         return response;
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-        log.info("HTTP DELETE /users/{} started.", id);
+        log.info("HTTP DELETE /users/{id} started. id={}", id);
         userService.delete(id);
     }
 
@@ -58,10 +58,19 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public UserResponse update(@PathVariable Long id,
                                @Valid @RequestBody UpdateUserRequest request) {
-        log.info("HTTP PUT /users/{} started. ", id);
+        log.info("HTTP PUT /users/{id} started. id={}", id);
         UserResponse response = userService.update(request, id);
-        log.info("HTTP PUT /users/{} completed. ", id);
+        log.info("HTTP PUT /users/{id} completed. id={}", id);
         return response;
+    }
+
+    @PutMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addFriend(@PathVariable Long userId,
+                          @PathVariable Long friendId) {
+        log.info("HTTP PUT /users/{userId}/friends/{friendId} started. userId={}, friendId={}" , userId, friendId);
+        userService.addFriend(userId, friendId);
+        log.info("HTTP PUT /users/{userId}/friends/{friendId} completed. userId={}, friendId={}", userId, friendId);
     }
 
 }
