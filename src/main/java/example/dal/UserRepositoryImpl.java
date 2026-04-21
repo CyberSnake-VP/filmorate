@@ -15,7 +15,7 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     }
 
     private static final String INSERT_QUERY = "INSERT INTO users (email, login, name, birthday)" +
-            " VALUES (?, ?, ?, ?) RETURNING id";
+            " VALUES (?, ?, ?, ?)";
     private static final String GET_BY_ID_QUERY = "SELECT * FROM users WHERE id = ?";
     private static final String GET_ALL_QUERY = "SELECT * FROM users";
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ?" +
