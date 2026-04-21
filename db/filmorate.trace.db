@@ -12,3 +12,6 @@ java.sql.SQLClientInfoException: Client info name 'ApplicationName' not supporte
 	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1090)
 	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:614)
 	at java.base/java.lang.Thread.run(Thread.java:1474)
+2026-04-21 15:56:52.895263+03:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?) [*]RETURNING id"; SQL statement:
+INSERT INTO users (email, login, name, birthday) VALUES (?, ?, ?, ?) RETURNING id [42000-232]
