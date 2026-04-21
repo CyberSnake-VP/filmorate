@@ -26,19 +26,19 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public UserResponse create(CreateUserRequest request) {
-        boolean isEmail = userRepository.isEmailExist(request.getEmail());
-        boolean isLogin = userRepository.isLoginExist(request.getLogin());
-        log.debug("Create user: checking email uniqueness. email={}", request.getEmail());
+        boolean isEmail = userRepository.isEmailExist(request.email());
+        boolean isLogin = userRepository.isLoginExist(request.login());
+        log.debug("Create user: checking email uniqueness. email={}", request.email());
         if (isEmail) {
-            log.warn("Create user rejected: email already exists. email={}", request.getEmail());
+            log.warn("Create user rejected: email already exists. email={}", request.email());
             throw new ConditionNotMetException(EMAIL_IS_EXISTING);
         }
-        log.debug("Create user: checking login uniqueness. login={}", request.getLogin());
+        log.debug("Create user: checking login uniqueness. login={}", request.login());
         if (isLogin) {
-            log.warn("Create user rejected: login already exists. login={}", request.getLogin());
+            log.warn("Create user rejected: login already exists. login={}", request.login());
             throw new ConditionNotMetException(LOGIN_IS_EXISTING);
         }
-        log.info("Create user started. login={}, email={}", request.getLogin(), request.getEmail());
+        log.info("Create user started. login={}, email={}", request.login(), request.email());
         User createdUser = userRepository.create(UserMapper.toUser(request));
         log.info("Create user completed. userId={}, login={}", createdUser.getId(), createdUser.getLogin());
 
@@ -76,22 +76,22 @@ public class UserServiceImpl implements UserService{
         String login = user.getLogin();
         String email = user.getEmail();
 
-        log.debug("Update user: checking email uniqueness. userId={}, email={}", id, request.getEmail());
+        log.debug("Update user: checking email uniqueness. userId={}, email={}", id, request.email());
         if (request.hasEmail()) {
-            if (!request.getEmail().equals(email)) {
-                boolean isEmailValid = userRepository.isEmailExist(request.getEmail());
+            if (!request.email().equals(email)) {
+                boolean isEmailValid = userRepository.isEmailExist(request.email());
                 if (isEmailValid) {
-                    log.warn("Update user rejected: email already exists. userId={}, email={}", id, request.getEmail());
+                    log.warn("Update user rejected: email already exists. userId={}, email={}", id, request.email());
                     throw new ConditionNotMetException(EMAIL_IS_EXISTING);
                 }
             }
         }
-        log.debug("Update user: checking login uniqueness. userId={}, login={}", id, request.getLogin());
+        log.debug("Update user: checking login uniqueness. userId={}, login={}", id, request.login());
         if (request.hasLogin()) {
-            if (!request.getLogin().equals(login)) {
-                boolean isLoginValid = userRepository.isLoginExist(request.getLogin());
+            if (!request.login().equals(login)) {
+                boolean isLoginValid = userRepository.isLoginExist(request.login());
                 if (isLoginValid) {
-                    log.warn("Update user rejected: login already exists. userId={}, login={}", id, request.getLogin());
+                    log.warn("Update user rejected: login already exists. userId={}, login={}", id, request.login());
                     throw new ConditionNotMetException(LOGIN_IS_EXISTING);
                 }
             }

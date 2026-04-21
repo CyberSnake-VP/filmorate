@@ -7,7 +7,6 @@ import example.model.User;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserMapper {
@@ -27,26 +26,26 @@ public class UserMapper {
 
     public static User toUser(CreateUserRequest request) {
         User user = new User();
-        user.setEmail(request.getEmail());
-        user.setLogin(request.getLogin());
-        user.setName(request.getName());
-        user.setBirthday(request.getBirthday());
+        user.setEmail(request.email());
+        user.setLogin(request.login());
+        user.setName(request.name());
+        user.setBirthday(request.birthday());
         return user;
     }
 
 
     public static User toUserUpdate(UpdateUserRequest request, User user) {
         if(request.hasEmail()) {
-            user.setEmail(request.getEmail());
+            user.setEmail(request.email());
         }
         if(request.hasLogin()) {
-            user.setLogin(request.getLogin());
+            user.setLogin(request.login());
         }
         if(request.hasName()) {
-            user.setName(request.getName());
+            user.setName(request.name());
         }
         if(request.hasBirthday()) {
-            user.setBirthday(request.getBirthday());
+            user.setBirthday(request.birthday());
         }
 
         return user;
