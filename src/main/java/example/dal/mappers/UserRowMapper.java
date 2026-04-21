@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 
 @Component
 public class UserRowMapper implements RowMapper<User> {
@@ -23,6 +24,9 @@ public class UserRowMapper implements RowMapper<User> {
         if(birthday != null) {
             user.setBirthday(birthday.toLocalDate());
         }
+
+        // ЗАГЛУШКА ЗДЕСЬ
+        user.setFriends(new HashSet<>());  // пустой список друзей
         return user;
     }
 }
