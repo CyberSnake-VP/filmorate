@@ -20,7 +20,7 @@ public class UserMapper {
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday(),
-                new HashSet<>()
+                user.getFriends()
         );
     }
 
