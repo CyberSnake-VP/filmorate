@@ -21,6 +21,10 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     private static final String UPDATE_QUERY = "UPDATE users SET email = ?, login = ?, name = ?, birthday = ?" +
             " WHERE id = ?";
     private static final String DELETE_QUERY = "DELETE FROM users WHERE id = ?";
+    private static final String EXIST_BY_ID_QUERY = "SELECT 1 FROM users WHERE id = ? LIMIT 1";
+    private static final String EXIST_EMAIL_QUERY = "SELECT 1 FROM users WHERE email = ? LIMIT 1";
+    private static final String EXIST_LOGIN_QUERY = "SELECT 1 FROM users WHERE login = ? LIMIT 1";
+
 
 
     @Override
@@ -63,4 +67,20 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     public boolean delete(Long id) {
         return delete(DELETE_QUERY, id);
     }
+
+    @Override
+    public boolean isExistById(Long id) {
+        return exist(EXIST_BY_ID_QUERY, id);
+    }
+
+    @Override
+    public boolean isLoginExist(String login) {
+        return exist(EXIST_LOGIN_QUERY, login);
+    }
+
+    @Override
+    public boolean isEmailExist(String email) {
+        return exist(EXIST_EMAIL_QUERY, email);
+    }
+
 }
