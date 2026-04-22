@@ -5,8 +5,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class UserRepositoryImpl extends BaseRepository<User> implements UserRepository{
@@ -28,6 +30,9 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
             "SELECT friend_id FROM friends WHERE user_id = ? " +
             "INTERSECT " +
             "SELECT friend_id FROM friends WHERE user_id = ? )";
+
+
+
 
     @Override
     public User create(User user) {
@@ -88,6 +93,22 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     @Override
     public List<User> getCommonFriends(Long userId, Long friendId) {
         return findAll(FIND_COMMON_FRIENDS, userId, friendId);
+    }
+
+    // НУЖНО ПОЛУЧИТЬ ДАННЫЕ С ОДНОГО ЗАПРОСА, ПОЭТОМУ СОБИРАЕМ id из списка в строку "?, ?, ?"
+    @Override
+    public List<User> findAllByIds(List<Long> friendIds) {
+
+        if (friendIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        // создаем placeholders
+        String placeholders = String.join(",",  Collections.nCopies(friendIds.size(),"?"));
+
+        String sql = String.format("SELECT * FROM users WHERE id IN (%s)", placeholders);
+
+        return findAll(sql, friendIds.toArray());
     }
 
 }

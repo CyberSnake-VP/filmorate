@@ -3,6 +3,7 @@ package example.dal;
 import example.model.User;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -15,4 +16,5 @@ public interface UserRepository {
     boolean isLoginExist(String login);
     boolean isEmailExist(String email);
     List<User> getCommonFriends(Long userId, Long friendId);
+    List<User> findAllByIds(List<Long> ids);
 }

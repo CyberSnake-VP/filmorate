@@ -19,4 +19,5 @@ public interface UserService {
     void removeFriend(Long userId, Long friendId);
     List<UserResponse> getFriends(Long userId);
     List<UserResponse> getCommonFriends(Long userId, Long friendId);
+
 }

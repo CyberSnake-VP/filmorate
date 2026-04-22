@@ -13,13 +13,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final FriendRepository friendRepository;
 
@@ -27,7 +29,8 @@ public class UserServiceImpl implements UserService{
     private static final String EMAIL_IS_EXISTING = "Email уже используется";
     private static final String NOT_FOUND_MESSAGE = "Пользователь не найден";
     private static final String ADD_THEMSELVES_MESSAGE = "Нельзя добавить пользователя в друзья самому себе";
-    private static final String FRIEND_IS_ALREADY_MESSAGE ="Пользователи уже являются друзьями";
+    private static final String FRIEND_IS_ALREADY_MESSAGE = "Пользователи уже являются друзьями";
+    private static final String REMOVE_THEMSELVES_MESSAGE = "Нельзя удалить из друзей самого себя";
 
 
     @Override
@@ -47,7 +50,7 @@ public class UserServiceImpl implements UserService{
 
         log.info("Create user started. login={}, email={}", request.login(), request.email());
         User createUser = UserMapper.toUser(request);
-        if(request.name() == null || request.name().isBlank()) {
+        if (request.name() == null || request.name().isBlank()) {
             createUser.setName(request.login());
         }
         User createdUser = userRepository.create(createUser);
@@ -128,42 +131,87 @@ public class UserServiceImpl implements UserService{
 
     @Override
     public void addFriend(Long userId, Long friendId) {
-         log.info("Add friend started: userId={}, friendId={}", userId, friendId);
-         log.debug("Add friend: checking self-friend request. userId={}, friendId={}", userId, friendId);
-         if(userId.equals(friendId)) {
+        log.info("Add friend started: userId={}, friendId={}", userId, friendId);
+        log.debug("Add friend: checking self-friend request. userId={}, friendId={}", userId, friendId);
+        if (userId.equals(friendId)) {
             log.warn("Add friend failed: user cannot add themselves. userId={}, friendId={}", userId, friendId);
             throw new ConditionNotMetException(ADD_THEMSELVES_MESSAGE);
-         }
+        }
 
-         boolean isExistUser = userRepository.isExistById(userId);
-         boolean isExistFriend = userRepository.isExistById(friendId);
+        boolean isExistUser = userRepository.isExistById(userId);
+        boolean isExistFriend = userRepository.isExistById(friendId);
 
         log.debug("Add friend: checking users existence. userId={}, friendId={}", userId, friendId);
-        if(!isExistUser || !isExistFriend) {
-             log.warn("Add friend failed: user or friend not found. userId={}, friendId={}", userId, friendId);
-             throw new NotFoundException(NOT_FOUND_MESSAGE);
-         }
+        if (!isExistUser || !isExistFriend) {
+            log.warn("Add friend failed: user or friend not found. userId={}, friendId={}", userId, friendId);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
 
-         boolean isAlreadyFriends = friendRepository.existFriend(userId, friendId);
-         log.debug("Add friend: checking friendship already exists. userId={}, friendId={}", userId, friendId);
-         if(isAlreadyFriends) {
-             log.warn("Add friend failed: already friends. userId={}, friendId={}", userId, friendId);
-             throw new ConditionNotMetException(FRIEND_IS_ALREADY_MESSAGE);
-         }
+        boolean isAlreadyFriends = friendRepository.existFriend(userId, friendId);
+        log.debug("Add friend: checking friendship already exists. userId={}, friendId={}", userId, friendId);
+        if (isAlreadyFriends) {
+            log.warn("Add friend failed: already friends. userId={}, friendId={}", userId, friendId);
+            throw new ConditionNotMetException(FRIEND_IS_ALREADY_MESSAGE);
+        }
 
-         friendRepository.addFriend(userId, friendId);
-         log.info("Add friend completed: userId={}, friendId={}", userId, friendId);
+        friendRepository.addFriend(userId, friendId);
+        log.info("Add friend completed: userId={}, friendId={}", userId, friendId);
     }
 
     @Override
     public void removeFriend(Long userId, Long friendId) {
+        log.info("Remove friend started: userId={}, friendId={}", userId, friendId);
 
+        if (userId.equals(friendId)) {
+            log.warn("Remove friend failed: user cannot remove themselves. userId={}, friendId={}", userId, friendId);
+            throw new ConditionNotMetException(REMOVE_THEMSELVES_MESSAGE);
+        }
+
+        boolean isExistUser = userRepository.isExistById(userId);
+        boolean isExistFriend = userRepository.isExistById(friendId);
+
+        log.debug("Remove friend: checking users existence. userId={}, friendId={}", userId, friendId);
+        if (!isExistUser || !isExistFriend) {
+            log.warn("Remove friend failed: user or friend not found. userId={}, friendId={}", userId, friendId);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+
+        friendRepository.removeFriend(userId, friendId);
+        log.info("Remove friend completed: userId={}, friendId={}", userId, friendId);
     }
 
     @Override
     public List<UserResponse> getFriends(Long userId) {
+        log.info("Get friends started: userId={}", userId);
+        boolean isUserExisting = userRepository.isExistById(userId);
+        log.debug("Get friends: checking users existence. userId={}", userId);
+        if (!isUserExisting) {
+            log.warn("Get friends failed: userId={}", userId);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        // получаем id друзей френдов
+        log.debug("Get friends: getFriends");
+        List<Long> friendsIds = friendRepository.getFriends(userId);
+        // получаем запросом список юзеров (friendIds)
+        log.debug("Get friends: findAllByIds");
+        List<User> friends = userRepository.findAllByIds(friendsIds);
 
-        return List.of();
+        // получаем маппу с id юзера и список его френдов
+        log.debug("Get friends: getFriendsForUsers");
+        Map<Long, List<Long>> friendsMap = friendRepository.getFriendsForUsers(friendsIds);
+
+        // пробегаемся по списки друзей (id) и достаем из маппы список друзей
+        friends.forEach(friend -> {
+            List<Long> friendFriends = friendsMap.getOrDefault(friend.getId(), Collections.emptyList());
+            friend.getFriends().addAll(friendFriends);
+        });
+
+        List<UserResponse> friendResponses = friends.stream()
+                .map(UserMapper::toUserResponse)
+                .toList();
+
+        log.info("Get friends completed: userId={}, friendsCount={}", userId, friendResponses.size());
+        return friendResponses;
     }
 
     @Override

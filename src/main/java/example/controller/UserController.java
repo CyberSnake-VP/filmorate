@@ -73,4 +73,20 @@ public class UserController {
         log.info("HTTP PUT /users/{userId}/friends/{friendId} completed. userId={}, friendId={}", userId, friendId);
     }
 
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeFriend(@PathVariable Long userId,
+                             @PathVariable Long friendId) {
+        log.info("HTTP DELETE /users/{userId}/friends/{friendId} started. userId={}, friendId={}", userId, friendId);
+        userService.removeFriend(userId, friendId);
+        log.info("HTTP DELETE /users/{userId}/friends/{friendId} completed. userId={}, friendId={}", userId, friendId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> getFriends(@PathVariable Long userId) {
+        log.info("HTTP GET /users/{userId}/friends} started. userId={}", userId);
+        return userService.getFriends(userId);
+    }
+
 }
