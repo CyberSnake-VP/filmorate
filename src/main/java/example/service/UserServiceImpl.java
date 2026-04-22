@@ -13,10 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -35,15 +32,16 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse create(CreateUserRequest request) {
-        boolean isEmail = userRepository.isEmailExist(request.email());
-        boolean isLogin = userRepository.isLoginExist(request.login());
+        log.info("Create user started. login={}", request.login());
+
         log.debug("Create user: checking email uniqueness. email={}", request.email());
-        if (isEmail) {
+        if (userRepository.isEmailExist(request.email())) {
             log.warn("Create user rejected: email already exists. email={}", request.email());
             throw new ConditionNotMetException(EMAIL_IS_EXISTING);
         }
+
         log.debug("Create user: checking login uniqueness. login={}", request.login());
-        if (isLogin) {
+        if (userRepository.isLoginExist(request.login())) {
             log.warn("Create user rejected: login already exists. login={}", request.login());
             throw new ConditionNotMetException(LOGIN_IS_EXISTING);
         }
@@ -56,27 +54,52 @@ public class UserServiceImpl implements UserService {
         User createdUser = userRepository.create(createUser);
         log.info("Create user completed. userId={}, login={}", createdUser.getId(), createdUser.getLogin());
 
+        createdUser.setFriends(new HashSet<>());
         return UserMapper.toUserResponse(createdUser);
     }
 
     @Override
     public UserResponse get(Long id) {
-        log.debug("Get user by id requested. userId={}", id);
-        return userRepository.findOne(id)
-                .map(UserMapper::toUserResponse)
+        log.info("Get user by id requested. userId={}", id);
+        User user = userRepository.findOne(id)
                 .orElseThrow(() -> {
                     log.warn("Get user failed: user not found. userId={}", id);
                     return new NotFoundException(NOT_FOUND_MESSAGE);
                 });
+
+        log.debug("Get user: find friend. userId={}", id);
+        List<Long> friendIds = friendRepository.getFriends(id);
+
+        if (!friendIds.isEmpty()) {
+            log.debug("Found {} friends for user {}", friendIds.size(), id);
+            user.getFriends().addAll(friendIds);
+        }
+
+        log.info("Get user completed. userId={}", id);
+        return UserMapper.toUserResponse(user);
     }
 
     @Override
     public List<UserResponse> getAll() {
-        List<UserResponse> users = userRepository.findAll().stream()
+        log.info("Get all users started.");
+        log.debug("Get all users: find all users.");
+        List<User> users = userRepository.findAll();
+
+        log.debug("Get all users: take user ids.");
+        List<Long> userIds = users.stream()
+                .map(User::getId)
+                .toList();
+
+        log.debug("Get all users: find friends for users.");
+        Map<Long, List<Long>> friendsMap = friendRepository.getFriendsForUsers(userIds);
+
+        List<UserResponse> responses = users.stream()
+                .peek(user -> user.getFriends().addAll(friendsMap.getOrDefault(user.getId(), new ArrayList<>())))
                 .map(UserMapper::toUserResponse)
                 .toList();
-        log.debug("Get all users completed. count={}", users.size());
-        return users;
+
+        log.info("Get all users completed. count={}", users.size());
+        return responses;
     }
 
     @Override
@@ -216,7 +239,27 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<UserResponse> getCommonFriends(Long userId, Long friendId) {
-        return List.of();
+        log.info("Get common friends started. userId={}, friendId={}", userId, friendId);
+
+        log.debug("Get common friends: find common friends. userId={}, friendId={}", userId, friendId);
+        List<User> friends = userRepository.getCommonFriends(userId, friendId);
+
+        if(friends.isEmpty()) {
+            log.debug("Get common friends: friends list is empty");
+            return Collections.emptyList();
+        }
+
+        List<Long> friendsIds = friends.stream().map(User::getId).toList();
+
+        Map<Long, List<Long>> friendsMap = friendRepository.getFriendsForUsers(friendsIds);
+
+        List<UserResponse> responses = friends.stream()
+                .peek(user -> user.getFriends().addAll(friendsMap.getOrDefault(user.getId(), Collections.emptyList())))
+                .map(UserMapper::toUserResponse)
+                .toList();
+
+        log.info("Get common friends completed. count={}, userId={}, friendId={}", responses.size(), userId, friendId);
+        return responses;
     }
 
 
