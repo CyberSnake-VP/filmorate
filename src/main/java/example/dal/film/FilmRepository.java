@@ -13,4 +13,5 @@ public interface FilmRepository {
     Optional<Film> findById(Long id);
     List<Film> findAll();
     boolean existsById(Long id);
+    List<Film> getPopular(Long count);
 }

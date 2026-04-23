@@ -75,4 +75,9 @@ public class FilmRepositoryImpl extends BaseRepository<Film> implements FilmRepo
     public boolean existsById(Long id) {
         return exist(EXISTS_BY_ID, id);
     }
+
+    @Override
+    public List<Film> getPopular(Long count) {
+        return List.of();
+    }
 }

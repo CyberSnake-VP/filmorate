@@ -189,6 +189,10 @@ public class FilmServiceImpl implements FilmService {
                         MpaRating::getId,
                         Function.identity()
                 ));
+
+        Map<Long, Set<Long>> filmLikes = filmLikesRepository.getLikesForFilms(filmIds);
+
+
         // мапы нужны для быстрого доступа к объектам жанров и MPA рейтингов по ключам.
         // Заполняем поля фильмов если данные есть.
         for (Film film : films) {
@@ -202,9 +206,16 @@ public class FilmServiceImpl implements FilmService {
 
             if (film.getMpaId() != null) {
                 MpaRating mpa = ratingMap.get(film.getMpaId());
-                film.setMpa(mpa);
+                if (mpa != null) {
+                    film.setMpa(mpa);
+                }
+
             }
+
+            log.debug("Find all films: setting likes");
+            film.setLikes(filmLikes.getOrDefault(film.getId(), Collections.emptySet()));
         }
+
         log.info("Find all films finished. films={}", films);
         return films.stream().map(FilmMapper::toFilmResponse).toList();
     }
@@ -262,6 +273,7 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<FilmResponse> getPopular(Long count) {
+
         return List.of();
     }
 

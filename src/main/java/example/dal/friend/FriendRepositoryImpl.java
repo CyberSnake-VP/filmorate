@@ -50,31 +50,26 @@ public class FriendRepositoryImpl implements FriendRepository {
 
     @Override
     public Map<Long, List<Long>> getFriendsForUsers(List<Long> userIds) {
+
         if (userIds == null || userIds.isEmpty()) {
             return new HashMap<>();
         }
+
         // получаем плейсхолдеры для формирования запроса
         String placeholders = String.join(", ", Collections.nCopies(userIds.size(), "?"));
 
         // получаем список друзей пользователя
         String sql = String.format("SELECT user_id, friend_id FROM friends WHERE user_id IN (%s)", placeholders);
 
-        // формируем Map
-        Map<Long, List<Long>> friendsMap = new HashMap<>();
-
-        // заполняем Map
-        jdbcTemplate.query(sql, rs -> {
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Long, List<Long>> result = new HashMap<>();
             while (rs.next()) {
                 Long userId = rs.getLong("user_id");
                 Long friendId = rs.getLong("friend_id");
-
-                friendsMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(friendId);
+                result.computeIfAbsent(userId, k -> new ArrayList<>()).add(friendId);
             }
-
+            return result;
         }, userIds.toArray());
-
-        return friendsMap;
     }
-
 
 }

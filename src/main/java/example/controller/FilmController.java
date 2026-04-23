@@ -64,4 +64,20 @@ public class FilmController {
         return response;
     }
 
+    @PutMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        log.info("HTTP PUT /films/{filmId}/like/{userId} started: filmId={}, userId={}", filmId, userId);
+        filmService.addLike(filmId, userId);
+        log.info("HTTP PUT /films/{filmId}/like/{userId} finished: filmId={}, userId={}", filmId, userId);
+    }
+
+    @DeleteMapping("/{filmId}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removeLike(@PathVariable Long filmId, @PathVariable Long userId) {
+        log.info("HTTP DELETE /films/{filmId}/like/{userId} started: filmId={}, userId={}", filmId, userId);
+        filmService.removeLike(filmId, userId);
+        log.info("HTTP DELETE /films/{filmId}/like/{userId} finished: filmId={}, userId={}", filmId, userId);
+    }
+
 }

@@ -5,8 +5,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -34,13 +33,25 @@ public class FilmLikesRepositoryImpl implements FIlmLikesRepository {
     }
 
     @Override
-    public List<Long> getLikes(Long filmId) {
-        if(filmId == null) {
-            return Collections.emptyList();
+    public Map<Long, Set<Long>> getLikesForFilms(List<Long> filmIds) {
+        if(filmIds == null) {
+            return Collections.emptyMap();
         }
 
-        return jdbcTemplate.query(GET_LIKES_QUERY,
-                (rs, rowNum) -> rs.getLong("user_id"), filmId);
+        String placeholder = String.join(", ", Collections.nCopies(filmIds.size(), "?"));
+        String sql = "SELECT film_id, user_id FROM film_likes WHERE film_id IN (" + placeholder + ")";
+
+
+        return jdbcTemplate.query(sql, rs -> {
+            Map<Long, Set<Long>> result = new HashMap<>();
+            while (rs.next()) {
+                Long filmId = rs.getLong("film_id");
+                Long userId = rs.getLong("user_id");
+                result.computeIfAbsent(filmId, k -> new HashSet<>()).add(userId);
+            }
+            return result;
+        }, filmIds.toArray());
+
     }
 
     @Override

@@ -261,6 +261,4 @@ public class UserServiceImpl implements UserService {
         log.info("Get common friends completed. count={}, userId={}, friendId={}", responses.size(), userId, friendId);
         return responses;
     }
-
-
 }

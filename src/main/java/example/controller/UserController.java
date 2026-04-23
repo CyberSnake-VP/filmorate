@@ -89,4 +89,13 @@ public class UserController {
         return userService.getFriends(userId);
     }
 
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    @ResponseStatus(HttpStatus.OK)
+    public List<UserResponse> getCommonFriends(@PathVariable Long userId, @PathVariable Long otherId) {
+        log.info("HTTP GET /users/{userId}/friends/common/{otherId} started. userId={}, otherId={}", userId, otherId);
+        List<UserResponse> responses = userService.getCommonFriends(userId, otherId);
+        log.info("HTTP GET /users/{userId}/friends/common/{otherId} completed. userId={}, otherId={}", userId, otherId);
+        return responses;
+    }
+
 }
