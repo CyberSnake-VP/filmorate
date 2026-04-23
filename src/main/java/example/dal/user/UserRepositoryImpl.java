@@ -76,17 +76,17 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
     }
 
     @Override
-    public boolean isExistById(Long id) {
+    public boolean existById(Long id) {
         return exist(EXIST_BY_ID_QUERY, id);
     }
 
     @Override
-    public boolean isLoginExist(String login) {
+    public boolean existLogin(String login) {
         return exist(EXIST_LOGIN_QUERY, login);
     }
 
     @Override
-    public boolean isEmailExist(String email) {
+    public boolean existEmail(String email) {
         return exist(EXIST_EMAIL_QUERY, email);
     }
 

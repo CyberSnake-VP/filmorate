@@ -22,6 +22,7 @@ public class FilmRepositoryImpl extends BaseRepository<Film> implements FilmRepo
     private static final String DELETE_FILM = "DELETE FROM films WHERE film_id = ?";
     private static final String FIND_BY_ID = "SELECT * FROM films WHERE film_id = ?";
     private static final String FIND_ALL = "SELECT * FROM films";
+    private static final String EXISTS_BY_ID = "SELECT 1 FROM films WHERE film_id = ? LIMIT 1";
 
 
 
@@ -68,5 +69,10 @@ public class FilmRepositoryImpl extends BaseRepository<Film> implements FilmRepo
     @Override
     public List<Film> findAll() {
         return findAll(FIND_ALL);
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return exist(EXISTS_BY_ID, id);
     }
 }

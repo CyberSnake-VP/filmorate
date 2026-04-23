@@ -35,13 +35,13 @@ public class UserServiceImpl implements UserService {
         log.info("Create user started. login={}", request.login());
 
         log.debug("Create user: checking email uniqueness. email={}", request.email());
-        if (userRepository.isEmailExist(request.email())) {
+        if (userRepository.existEmail(request.email())) {
             log.warn("Create user rejected: email already exists. email={}", request.email());
             throw new ConditionNotMetException(EMAIL_IS_EXISTING);
         }
 
         log.debug("Create user: checking login uniqueness. login={}", request.login());
-        if (userRepository.isLoginExist(request.login())) {
+        if (userRepository.existLogin(request.login())) {
             log.warn("Create user rejected: login already exists. login={}", request.login());
             throw new ConditionNotMetException(LOGIN_IS_EXISTING);
         }
@@ -116,7 +116,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Update user: checking email uniqueness. userId={}, email={}", id, request.email());
         if (request.hasEmail()) {
             if (!request.email().equals(email)) {
-                boolean isEmailValid = userRepository.isEmailExist(request.email());
+                boolean isEmailValid = userRepository.existEmail(request.email());
                 if (isEmailValid) {
                     log.warn("Update user rejected: email already exists. userId={}, email={}", id, request.email());
                     throw new ConditionNotMetException(EMAIL_IS_EXISTING);
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
         log.debug("Update user: checking login uniqueness. userId={}, login={}", id, request.login());
         if (request.hasLogin()) {
             if (!request.login().equals(login)) {
-                boolean isLoginValid = userRepository.isLoginExist(request.login());
+                boolean isLoginValid = userRepository.existLogin(request.login());
                 if (isLoginValid) {
                     log.warn("Update user rejected: login already exists. userId={}, login={}", id, request.login());
                     throw new ConditionNotMetException(LOGIN_IS_EXISTING);
@@ -161,8 +161,8 @@ public class UserServiceImpl implements UserService {
             throw new ConditionNotMetException(ADD_THEMSELVES_MESSAGE);
         }
 
-        boolean isExistUser = userRepository.isExistById(userId);
-        boolean isExistFriend = userRepository.isExistById(friendId);
+        boolean isExistUser = userRepository.existById(userId);
+        boolean isExistFriend = userRepository.existById(friendId);
 
         log.debug("Add friend: checking users existence. userId={}, friendId={}", userId, friendId);
         if (!isExistUser || !isExistFriend) {
@@ -190,8 +190,8 @@ public class UserServiceImpl implements UserService {
             throw new ConditionNotMetException(REMOVE_THEMSELVES_MESSAGE);
         }
 
-        boolean isExistUser = userRepository.isExistById(userId);
-        boolean isExistFriend = userRepository.isExistById(friendId);
+        boolean isExistUser = userRepository.existById(userId);
+        boolean isExistFriend = userRepository.existById(friendId);
 
         log.debug("Remove friend: checking users existence. userId={}, friendId={}", userId, friendId);
         if (!isExistUser || !isExistFriend) {
@@ -206,7 +206,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<UserResponse> getFriends(Long userId) {
         log.info("Get friends started: userId={}", userId);
-        boolean isUserExisting = userRepository.isExistById(userId);
+        boolean isUserExisting = userRepository.existById(userId);
         log.debug("Get friends: checking users existence. userId={}", userId);
         if (!isUserExisting) {
             log.warn("Get friends failed: userId={}", userId);

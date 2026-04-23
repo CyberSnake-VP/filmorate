@@ -13,4 +13,7 @@ public interface FilmService {
     FilmResponse findById(Long id);
     List<FilmResponse> findAll();
 
+    void addLike(Long filmId, Long userId);
+    void removeLike(Long filmId, Long userId);
+    List<FilmResponse> getPopular(Long count);
 }

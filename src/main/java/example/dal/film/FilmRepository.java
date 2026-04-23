@@ -12,4 +12,5 @@ public interface FilmRepository {
     void delete(Long id);
     Optional<Film> findById(Long id);
     List<Film> findAll();
+    boolean existsById(Long id);
 }

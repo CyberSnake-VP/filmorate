@@ -2,8 +2,10 @@ package example.service;
 
 import example.dal.filmgenre.FilmGenreRepository;
 import example.dal.film.FilmRepository;
+import example.dal.filmlikes.FIlmLikesRepository;
 import example.dal.genre.GenreRepository;
 import example.dal.mpa.MpaRepository;
+import example.dal.user.UserRepository;
 import example.dto.request.film.CreateFilmRequest;
 import example.dto.request.film.UpdateFilmRequest;
 import example.dto.response.FilmResponse;
@@ -28,10 +30,13 @@ public class FilmServiceImpl implements FilmService {
     private final MpaRepository mpaRepository;
     private final GenreRepository genreRepository;
     private final FilmGenreRepository filmGenreRepository;
+    private final FIlmLikesRepository filmLikesRepository;
+    private final UserRepository userRepository;
 
     private static final String NOT_FOUND_MESSAGE = "Film not found";
     private static final String NOT_FOUND_MPA_MESSAGE = "MPA rating not found";
     private static final String NOT_FOUND_GENRE_MESSAGE = "Some genres not found";
+    private static final String NOT_FOUND_USER_MESSAGE = "User not found";
 
     @Override
     public FilmResponse save(CreateFilmRequest request) {
@@ -94,7 +99,7 @@ public class FilmServiceImpl implements FilmService {
             film.setMpaId(request.mpaId());
         }
 
-        if(request.hasGenreIds()) {
+        if (request.hasGenreIds()) {
             log.debug("Update film: genres checking genres={}", request.genreIds());
             List<Long> genreIdsInRequest = request.genreIds();
             genreIdsInRequest = new ArrayList<>(new HashSet<>(genreIdsInRequest));
@@ -202,5 +207,69 @@ public class FilmServiceImpl implements FilmService {
         }
         log.info("Find all films finished. films={}", films);
         return films.stream().map(FilmMapper::toFilmResponse).toList();
+    }
+
+    @Override
+    public void addLike(Long filmId, Long userId) {
+        log.info("Add like to film started: filmId={}, userId={}", filmId, userId);
+
+
+        if (isNotExistFilm(filmId)) {
+            log.warn("Add like to film failed: Film not found. filmId={}", filmId);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        if (isNotExistUser(userId)) {
+            log.warn("Add like to film failed: User not found. userId={}", userId);
+            throw new NotFoundException(NOT_FOUND_USER_MESSAGE);
+        }
+
+        log.debug("Add like to film: checked already like. filmId={}, userId={}", filmId, userId);
+        if (filmLikesRepository.isLiked(filmId, userId)) {
+            log.debug("Add like to film: already liked");
+            return;
+        }
+
+        log.debug("Add like to film: adding lake. filmId={}, userId={}", filmId, userId);
+        filmLikesRepository.addLike(filmId, userId);
+        log.info("Add like to film: finished");
+    }
+
+    @Override
+    public void removeLike(Long filmId, Long userId) {
+        log.info("Remove like started: filmId={}, userId={}", filmId, userId);
+
+        if (isNotExistFilm(filmId)) {
+            log.warn("Remove like to film failed: Film not found. filmId={}", filmId);
+            throw new NotFoundException(NOT_FOUND_MESSAGE);
+        }
+        if (isNotExistUser(userId)) {
+            log.warn("Remove like to film failed: User not found. userId={}", userId);
+            throw new NotFoundException(NOT_FOUND_USER_MESSAGE);
+        }
+
+        log.debug("Remove like: checking exist the like. filmId={}, userId={}", filmId, userId);
+        boolean isLiked = filmLikesRepository.isLiked(filmId, userId);
+
+        if (!isLiked) {
+            log.debug("Remove like: like not found");
+            return;
+        }
+
+        log.debug("Remove like: removing like to film. filmId={}, userId={}", filmId, userId);
+        filmLikesRepository.removeLike(filmId, userId);
+        log.info("Remove like: finished");
+    }
+
+    @Override
+    public List<FilmResponse> getPopular(Long count) {
+        return List.of();
+    }
+
+    private boolean isNotExistFilm(Long filmId) {
+        return !filmRepository.existsById(filmId);
+    }
+
+    private boolean isNotExistUser(Long userId) {
+        return !userRepository.existById(userId);
     }
 }
