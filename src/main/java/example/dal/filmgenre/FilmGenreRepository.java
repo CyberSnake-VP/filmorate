@@ -6,6 +6,6 @@ import java.util.Map;
 
 public interface FilmGenreRepository {
     void addGenresToFilm(Long id, List<Long> genreIds);
-    void deleteGenreByFilm(Long id);
+    void deleteGenresFromFilm(Long id);
     Map<Long, List<Long>> getFilmGenres(List<Long> filmIds);
 }

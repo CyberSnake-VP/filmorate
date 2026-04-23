@@ -18,7 +18,11 @@ public class FilmGenreRepositoryImpl implements FilmGenreRepository {
 
     @Override
     public void addGenresToFilm(Long filmId, List<Long> genreIds) {
-        jdbc.batchUpdate(ADD_GENRE_TO_FILM_QUERY, genreIds, genreIds.size(), (ps, genreId) -> {
+        if(genreIds == null || genreIds.isEmpty()){
+            return;
+        }
+        List<Long> uniqueGenreIds = genreIds.stream().distinct().toList();
+        jdbc.batchUpdate(ADD_GENRE_TO_FILM_QUERY, uniqueGenreIds, uniqueGenreIds.size(), (ps, genreId) -> {
                     ps.setLong(1, filmId);
                     ps.setLong(2, genreId);
                 }
@@ -27,9 +31,10 @@ public class FilmGenreRepositoryImpl implements FilmGenreRepository {
     }
 
     @Override
-    public void deleteGenreByFilm(Long id) {
+    public void deleteGenresFromFilm(Long id) {
         jdbc.update(DELETE_GENRE_BY_FILM_QUERY, id);
     }
+
 
     // получает список id жанров для списка id фильмов
     @Override

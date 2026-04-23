@@ -16,9 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -58,6 +56,7 @@ public class FilmServiceImpl implements FilmService {
         log.debug("Save film: genres checking genres={}", request.genreIds());
         if (request.genreIds() != null && !request.genreIds().isEmpty()) {
             List<Long> genreIds = request.genreIds();
+            genreIds = new ArrayList<>(new HashSet<>(genreIds));
             List<Genre> genres = genreRepository.findAllByIds(genreIds);
 
             if (genres.size() != request.genreIds().size()) {
@@ -66,6 +65,7 @@ public class FilmServiceImpl implements FilmService {
             }
 
             log.debug("Save film: add genres to film genres={}", genres);
+
             filmGenreRepository.addGenresToFilm(film.getId(), genreIds);
             film.setGenres(genres);
         }
@@ -77,8 +77,41 @@ public class FilmServiceImpl implements FilmService {
     public FilmResponse update(UpdateFilmRequest request, Long id) {
         log.info("Update film started: id={}", id);
 
+        log.debug("Update film: find film by id and update in mapper id={}", id);
+        Film film = filmRepository.findById(id).map(f -> FilmMapper.toFilmUpdate(request, f)).orElseThrow(() -> {
+            log.warn("Update film failed: Film not found. id={}", id);
+            return new NotFoundException(NOT_FOUND_MESSAGE);
+        });
 
-        return null;
+        if (request.hasMpaId()) {
+            log.debug("Update film:  MPA rating checking");
+            MpaRating mpa = mpaRepository.getMpaById(request.mpaId())
+                    .orElseThrow(() -> {
+                        log.warn("Update film failed: Mpa id not found. mpaId={}", request.mpaId());
+                        return new NotFoundException(NOT_FOUND_MPA_MESSAGE);
+                    });
+            film.setMpa(mpa);
+            film.setMpaId(request.mpaId());
+        }
+
+        if(request.hasGenreIds()) {
+            log.debug("Update film: genres checking genres={}", request.genreIds());
+            List<Long> genreIdsInRequest = request.genreIds();
+            genreIdsInRequest = new ArrayList<>(new HashSet<>(genreIdsInRequest));
+            List<Genre> genresInRequest = genreRepository.findAllByIds(genreIdsInRequest);
+
+            if (genresInRequest.size() != genreIdsInRequest.size()) {
+                log.warn("Update film failed: Some genres not found. genreIds={}", genreIdsInRequest);
+                throw new NotFoundException(NOT_FOUND_GENRE_MESSAGE);
+            }
+
+            filmGenreRepository.deleteGenresFromFilm(id);
+            filmGenreRepository.addGenresToFilm(id, genreIdsInRequest);
+
+            film.setGenres(genresInRequest);
+        }
+
+        return FilmMapper.toFilmResponse(filmRepository.update(film));
     }
 
     @Override
@@ -98,7 +131,7 @@ public class FilmServiceImpl implements FilmService {
         });
 
         log.debug("Find film by Id: get ratings");
-        if(film.getMpaId() != null) {
+        if (film.getMpaId() != null) {
             MpaRating mpaRating = mpaRepository.getMpaById(film.getMpaId())
                     .orElseThrow(() -> {
                         log.warn("Find film by Id failed: MPA rating not found. mpaId={}", film.getMpaId());
@@ -109,7 +142,7 @@ public class FilmServiceImpl implements FilmService {
 
         log.debug("Find film by Id: get genres");
         List<Genre> genres = genreRepository.findByFilmId(id);
-        if(genres != null) {
+        if (genres != null) {
             film.setGenres(genres);
         }
 
@@ -124,7 +157,7 @@ public class FilmServiceImpl implements FilmService {
         log.debug("Find all films: get films from repository");
         List<Film> films = filmRepository.findAll();
 
-        if(films.isEmpty()) {
+        if (films.isEmpty()) {
             log.debug("Find all films: no films found");
             return Collections.emptyList();
         }
@@ -154,18 +187,18 @@ public class FilmServiceImpl implements FilmService {
         // мапы нужны для быстрого доступа к объектам жанров и MPA рейтингов по ключам.
         // Заполняем поля фильмов если данные есть.
         for (Film film : films) {
-           List<Long> genreIds = filmGenres.get(film.getId());
-           if(genreIds != null) {
-               List<Genre> result = genreIds.stream()
-                       .map(genreMap::get)
-                       .toList();
-               film.setGenres(result);
-           }
+            List<Long> genreIds = filmGenres.get(film.getId());
+            if (genreIds != null) {
+                List<Genre> result = genreIds.stream()
+                        .map(genreMap::get)
+                        .toList();
+                film.setGenres(result);
+            }
 
-           if(film.getMpaId() != null) {
-              MpaRating mpa = ratingMap.get(film.getMpaId());
-              film.setMpa(mpa);
-           }
+            if (film.getMpaId() != null) {
+                MpaRating mpa = ratingMap.get(film.getMpaId());
+                film.setMpa(mpa);
+            }
         }
         log.info("Find all films finished. films={}", films);
         return films.stream().map(FilmMapper::toFilmResponse).toList();
