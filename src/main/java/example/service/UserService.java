@@ -3,7 +3,7 @@ package example.service;
 
 import example.dto.request.user.CreateUserRequest;
 import example.dto.request.user.UpdateUserRequest;
-import example.dto.response.user.UserResponse;
+import example.dto.response.UserResponse;
 
 import java.util.List;
 

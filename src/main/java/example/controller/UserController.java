@@ -2,7 +2,7 @@ package example.controller;
 
 import example.dto.request.user.CreateUserRequest;
 import example.dto.request.user.UpdateUserRequest;
-import example.dto.response.user.UserResponse;
+import example.dto.response.UserResponse;
 import example.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

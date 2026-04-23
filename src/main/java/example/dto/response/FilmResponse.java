@@ -1,4 +1,4 @@
-package example.dto.response.film;
+package example.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import example.model.Genre;

@@ -3,7 +3,7 @@ package example.mapper;
 
 import example.dto.request.film.CreateFilmRequest;
 import example.dto.request.film.UpdateFilmRequest;
-import example.dto.response.film.FilmResponse;
+import example.dto.response.FilmResponse;
 import example.model.Film;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;

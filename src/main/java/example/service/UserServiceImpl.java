@@ -4,7 +4,7 @@ import example.dal.friend.FriendRepository;
 import example.dal.user.UserRepository;
 import example.dto.request.user.CreateUserRequest;
 import example.dto.request.user.UpdateUserRequest;
-import example.dto.response.user.UserResponse;
+import example.dto.response.UserResponse;
 import example.exception.ConditionNotMetException;
 import example.exception.NotFoundException;
 import example.mapper.UserMapper;

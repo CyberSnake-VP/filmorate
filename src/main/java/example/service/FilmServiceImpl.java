@@ -6,7 +6,7 @@ import example.dal.genre.GenreRepository;
 import example.dal.mpa.MpaRepository;
 import example.dto.request.film.CreateFilmRequest;
 import example.dto.request.film.UpdateFilmRequest;
-import example.dto.response.film.FilmResponse;
+import example.dto.response.FilmResponse;
 import example.exception.NotFoundException;
 import example.mapper.FilmMapper;
 import example.model.Film;
