@@ -1,4 +1,4 @@
-package example.dto.request;
+package example.dto.request.user;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;

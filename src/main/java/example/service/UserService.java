@@ -1,10 +1,9 @@
 package example.service;
 
 
-import example.dto.request.CreateUserRequest;
-import example.dto.request.UpdateUserRequest;
-import example.dto.response.UserResponse;
-import example.model.User;
+import example.dto.request.user.CreateUserRequest;
+import example.dto.request.user.UpdateUserRequest;
+import example.dto.response.user.UserResponse;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package example.dal;
+package example.dal.friend;
 
 import java.util.List;
 import java.util.Map;

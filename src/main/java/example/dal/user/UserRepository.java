@@ -1,9 +1,8 @@
-package example.dal;
+package example.dal.user;
 
 import example.model.User;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 public interface UserRepository {

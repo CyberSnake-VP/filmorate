@@ -1,5 +1,6 @@
-package example.dal;
+package example.dal.user;
 
+import example.dal.BaseRepository;
 import example.model.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class UserRepositoryImpl extends BaseRepository<User> implements UserRepository{
@@ -104,7 +104,7 @@ public class UserRepositoryImpl extends BaseRepository<User> implements UserRepo
         }
 
         // создаем placeholders
-        String placeholders = String.join(",",  Collections.nCopies(friendIds.size(),"?"));
+        String placeholders = String.join(", ",  Collections.nCopies(friendIds.size(),"?"));
 
         String sql = String.format("SELECT * FROM users WHERE id IN (%s)", placeholders);
 

@@ -1,4 +1,4 @@
-package example.dal.mappers;
+package example.dal.user;
 
 
 import example.model.User;
